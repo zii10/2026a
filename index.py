@@ -1,3 +1,5 @@
+import requests
+from bs4 import BeautifulSoup
 import os
 import json
 import firebase_admin
@@ -34,6 +36,20 @@ def index():
     homepage += "<br><a href=/read>讀取Firestore資料</a><br>"
     homepage += "<a href=/search>老師查詢</a><br>"
     return homepage
+
+@app.route("/sp1")
+def sp1():
+    R = ""
+    url = "https://atomovies.com.tw/movie/next/"
+    Data = requests.get(url)
+    Data.encoding = "utf-8"
+    #print(Data.text)
+    sp = BeautifulSoup(Data.text, "html.parser")
+    result=sp.select(".filmListAllX li")
+
+    for item in result:
+        R += item.text + "<br>"
+    return R
 
 @app.route("/search", methods=["GET", "POST"])
 def search():
