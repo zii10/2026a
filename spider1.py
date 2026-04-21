@@ -8,6 +8,8 @@ Data.encoding = "utf-8"
 sp = BeautifulSoup(Data.text, "html.parser")
 result=sp.select(".filmListAllX li")
 
+info = ""
 for item in result:
-    print(item)
+    print(item.find("img").get("alt"))
+    print("http://www.atmovies.com.tw" + item.find("a").get("href"))
     print()

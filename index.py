@@ -39,16 +39,16 @@ def index():
 
 @app.route("/sp1")
 def sp1():
-    R = ""
+    R = "<h1>爬蟲結果</h1>"
     url = "https://atomovies.com.tw/movie/next/"
     Data = requests.get(url)
     Data.encoding = "utf-8"
     #print(Data.text)
     sp = BeautifulSoup(Data.text, "html.parser")
-    result=sp.select(".filmListAllX li")
+    result=sp.select("td a")
 
     for item in result:
-        R += item.text + "<br>"
+        R += item.text + "<br>" + item.get("href")+"<br><br>"
     return R
 
 @app.route("/search", methods=["GET", "POST"])
