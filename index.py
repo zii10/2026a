@@ -35,12 +35,14 @@ def index():
     homepage += "<a href=/about>子洋簡介網頁</a><br>"
     homepage += "<br><a href=/read>讀取Firestore資料</a><br>"
     homepage += "<a href=/search>老師查詢</a><br>"
+    homepage += "<a href=/sp1>爬蟲結果</a><br>"
+    homepage += "<a href=/movie>查詢即將上映電影</a><br>"
     return homepage
 
 @app.route("/sp1")
 def sp1():
     R = "<h1>爬蟲結果</h1>"
-    url = "https://atomovies.com.tw/movie/next/"
+    url = "https://vercel.com/zii10s-projects/2026a"
     Data = requests.get(url)
     Data.encoding = "utf-8"
     #print(Data.text)
@@ -51,6 +53,30 @@ def sp1():
         R += item.text + "<br>" + item.get("href")+"<br><br>"
     return R
 
+@app.route("/movie")
+def movie():
+    url = "http://www.atmovies.com.tw/movie/next/"
+    
+    headers = {"User-Agent": "Mozilla/5.0"}
+    Data = requests.get(url, headers=headers)
+    Data.encoding = "utf-8"
+    
+    sp = BeautifulSoup(Data.text, "html.parser")
+    result = sp.select(".filmListAllX li")
+    R = "<h1>近期上映電影</h1>"
+
+    for item in result:
+        img_tag = item.find("img")
+        title = img_tag.get("alt") if img_tag else "無標題"
+
+        a_tag = item.find("a")
+        href = a_tag.get("href") if a_tag else "#"
+        link = "http://www.atmovies.com.tw" + href if not href.startswith("http") else href
+        
+        R += f"<a href='{link}' target='_blank'>{title}</a><br>"
+
+    return R
+
 @app.route("/search", methods=["GET", "POST"])
 def search():
     db = firestore.client()
@@ -59,7 +85,7 @@ def search():
     
     if request.method == "POST":
         keyword = request.form.get("keyword")
-        collection_ref = db.collection("靜宜資管2026a")
+        collection_ref = db.collection("靜宜資管")
         docs = collection_ref.get()
 
         for doc in docs:
