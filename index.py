@@ -50,13 +50,43 @@ def index():
     homepage += "<a href=/movie2>爬取電影進資料庫</a><br>"
     homepage += "<a href=/movie3>查詢電影資料庫</a><br>"
     homepage += "<a href=/road>查詢易肇事路口資訊</a><br>"
+    homepage += "<a href=/weather>查詢天氣</a><br>"
     return homepage
+
+@app.route("/weather", methods=["GET", "POST"])
+def weather_query():
+    result_text = ""
+    if request.method == "POST":
+        city = request.form.get("city", "")
+        if city:
+            city = city.replace("台", "臺")
+            
+            # 氣象署 API
+            url = f"https://opendata.cwa.gov.tw/api/v1/rest/datastore/F-C0032-001?Authorization=rdec-key-123-45678-011121314&format=JSON&locationName={city}"
+            
+            try:
+                response = requests.get(url, verify=False)
+                data = json.loads(response.text)
+                
+                if data["records"]["location"]:
+                    weather_element = data["records"]["location"][0]["weatherElement"]
+                    weather = weather_element[0]["time"][0]["parameter"]["parameterName"]
+                    rain = weather_element[1]["time"][0]["parameter"]["parameterName"]
+                    
+                    # 這是你要的 R 字串
+                    result_text = f"{city} 目前天氣預報：<br>{weather}，降雨機率：{rain}%"
+                else:
+                    result_text = "找不到該縣市，請輸入正確名稱（如：臺中市）。"
+            except Exception as e:
+                result_text = f"連線錯誤：{e}"
+                
+    return render_template("weather.html", result=result_text)
 
 @app.route("/road")
 def road():
     R = ""
     url = "https://newdatacenter.taichung.gov.tw/api/v1/no-auth/resource.download?rid=a1b899c0-511f-4e3d-b22b-814982a97e41"
-    Data = requests.get(url)
+    Data = requests.get(url, verify=False)
     #print(Data.text)
 
     JsonData = json.loads(Data.text)
