@@ -56,57 +56,28 @@ def index():
     return homepage
 
 
-@app.route("/webhook3", methods=["POST"])
-def webhook3():
-    req = request.get_json(force=True)
-    action = req.get("queryResult").get("action")
-    
-    if (action == "rateChoice"):
-        rate = req.get("queryResult").get("parameters").get("rate")
-        info = "我是周子洋開發的電影聊天機器人,您選擇的電影分級是：" + rate + "，相關電影：\n"
-        
-        db = firestore.client()
-        # 注意：這裡的集合名稱必須與您 /rate 路由中寫入的名稱一致
-        collection_ref = db.collection("本週新片含分級") 
-        docs = collection_ref.get()
-        
-        result = ""
-        for doc in docs:
-            movie_data = doc.to_dict()  # 建議換個變數名，避免與系統關鍵字 dict 衝突
-            # 檢查該電影的分級是否符合使用者的選擇
-            if rate in movie_data.get("rate", ""):
-                result += "片名：" + movie_data.get("title") + "\n"
-                result += "介紹：" + movie_data.get("hyperlink") + "\n\n"
-        
-        if result == "":
-            info += "目前查無此分級的電影。"
-        else:
-            info += result
-            
-        return make_response(jsonify({"fulfillmentText": info}))
-
-@app.route("/webhook2", methods=["POST"])
-def webhook2():
-    # build a request object
-    req = request.get_json(force=True)
-    # fetch queryResult from json
-    action =  req.get("queryResult").get("action")
-    #msg =  req.get("queryResult").get("queryText")
-    #info = "動作：" + action + "； 查詢內容：" + msg
-    if (action == "rateChoice"):
-        rate =  req.get("queryResult").get("parameters").get("rate")
-        info = "您選擇的電影分級是：" + rate
-    return make_response(jsonify({"fulfillmentText": info}))
-
-
 @app.route("/webhook", methods=["POST"])
 def webhook():
     # build a request object
     req = request.get_json(force=True)
     # fetch queryResult from json
-    action =  req.get("queryResult").get("action")
-    msg =  req.get("queryResult").get("queryText")
-    info = "動作：" + action + "； 查詢內容：" + msg
+    action =  req["queryResult"]["action"]
+    #msg =  req["queryResult"]["queryText"]
+    #info = "我是陳楷修設計的電影聊天機器人，動作：" + action + "； 查詢內容：" + msg
+    if (action == "rateChoice"):
+        rate =  req["queryResult"]["parameters"]["rate"]
+        info = "我是周子洋開發的電影聊天機器人,您選擇的電影分級是：" + rate + "，相關電影：\n"
+
+        db = firestore.client()
+        collection_ref = db.collection("本週新片含分級")
+        docs = collection_ref.get()
+        result = ""
+        for doc in docs:
+            dict = doc.to_dict()
+            if rate in dict["rate"]:
+                result += "片名：" + dict["title"] + "\n"
+                result += "介紹：" + dict["hyperlink"] + "\n\n"
+        info += result
     return make_response(jsonify({"fulfillmentText": info}))
 
 @app.route("/rate")
