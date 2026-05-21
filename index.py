@@ -29,7 +29,7 @@ if not firebase_admin._apps:
         print(f"Firebase 初始化失敗: {e}")
 
 
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, make_response, jsonify
 from datetime import datetime
 import random
 
