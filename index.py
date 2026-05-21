@@ -63,10 +63,10 @@ def webhook():
     # fetch queryResult from json
     action =  req["queryResult"]["action"]
     #msg =  req["queryResult"]["queryText"]
-    #info = "我是楊子青設計的電影聊天機器人, 動作：" + action + "； 查詢內容：" + msg
+    #info = "我是設計的電影聊天機器人，動作：" + action + "； 查詢內容：" + msg
     if (action == "rateChoice"):
         rate =  req["queryResult"]["parameters"]["rate"]
-        info = "我是楊子青設計的電影聊天機器人,您選擇的電影分級是：" + rate + "，相關電影：\n"
+        info = "我是周子洋開發的電影聊天機器人,您選擇的電影分級是：" + rate + "，相關電影：\n"
 
         db = firestore.client()
         collection_ref = db.collection("本週新片含分級")
@@ -75,11 +75,9 @@ def webhook():
         for doc in docs:
             dict = doc.to_dict()
             if rate in dict["rate"]:
-                result += "片名：" + dict["title"] + ";\n"
-                result += "連結：" + dict["hyperlink"] + "\n\n"
-
+                result += "片名：" + dict["title"] + "\n"
+                result += "介紹：" + dict["hyperlink"] + "\n\n"
         info += result
-
     return make_response(jsonify({"fulfillmentText": info}))
 
 @app.route("/rate")
