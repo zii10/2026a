@@ -57,6 +57,7 @@ def index():
     homepage += "<a href=/weather>查詢天氣</a><br>"
     homepage += "<a href=/rate>本周新片進口</a><br>"
     homepage += "<a href=/demo>聊天機器人</a><br>"
+    homepage += "<a href=/AI>AI</a><br>"
     return homepage
 
 @app.route('/ask', methods=['GET', 'POST']) 
@@ -88,6 +89,14 @@ def AI():
     
     # 回傳生成的文字
     return response.text
+
+@app.route("/webdemo")
+def webdemo():
+    return render_template("webdemo.html")
+
+@app.route("/demo")
+def demo():
+    return render_template("demo.html")
 
 @app.route("/webhook7", methods=["POST"])
 def webhook7():
